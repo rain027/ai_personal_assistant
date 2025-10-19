@@ -7,23 +7,27 @@ async function sendMessage()
     const input = document.getElementById("userInput");
     const message = input.value.trim();
 
-    if(! message) return;
+    if(!message) return;
 
-    // show user message
     addMessage(message,"user");
-    input.value = ""; // clears the input box after displaying the message
+    input.value = "";
 
     try{
-        // send to backend
-        const response = await fetch(`https://probable-invention-69wrpv5q7wq2xx4-8000.app.github.dev/api/chat`, {
+        const response = await fetch("https://probable-invention-69wrpv5q7wq2xx4-8000.app.github.dev", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({message: message})
         });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
         addMessage(data.response, "assistant");
     } catch(error){
-        addMessage("Error: Could not connect to backend", "error");
+        console.error("Error:", error);
+        addMessage("Error: " + error.message, "error");
     }
 }
 
