@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from groq import Groq
 import requests
 import re
+from sympy import symbols, solve, sympify, SympifyError
 
 load_dotenv()
 
@@ -22,6 +23,32 @@ class Message(BaseModel):
 
 # Store conversation history
 conversation_history = []
+
+def solve_math(equation):
+    """Solve mathematical equations using sympy"""
+    try:
+        # Handle different equation formats
+        x = symbols('x')
+        
+        # If it looks like "x2+2x+1=0", parse it
+        if '=' in equation:
+            left, right = equation.split('=')
+            expr = sympify(left) - sympify(right)
+        else:
+            expr = sympify(equation)
+        
+        # Solve the equation
+        solutions = solve(expr, x)
+        
+        if solutions:
+            if len(solutions) == 1:
+                return f"Solution: x = {solutions[0]}"
+            else:
+                return f"Solutions: x = {', '.join(str(sol) for sol in solutions)}"
+        else:
+            return "No solutions found"
+    except (SympifyError, ValueError, Exception) as e:
+        return None
 
 def get_weather(city):
     """Fetch weather for a city"""
@@ -65,7 +92,6 @@ def get_news():
 
 def extract_city_from_message(message):
     """Try to extract city name from message"""
-    # Simple extraction - look for "in [city]" or "for [city]"
     patterns = [
         r'in\s+([A-Za-z\s]+?)(?:\?|$)',
         r'for\s+([A-Za-z\s]+?)(?:\?|$)',
@@ -119,6 +145,24 @@ def chat(data: Message):
         
         return {"response": response_text}
     
+    # Check if user asked a math question
+    if any(keyword in user_message for keyword in ["solve", "equation", "math", "calculate", "=" and ("x" in user_message or "y" in user_message)]):
+        # Try to extract and solve equation
+        # Look for patterns like "x2+2x+1=0" or "solve x+5=10"
+        math_result = solve_math(data.message)
+        
+        if math_result:
+            response_text = math_result
+            conversation_history.append({
+                "role": "user",
+                "content": data.message
+            })
+            conversation_history.append({
+                "role": "assistant",
+                "content": response_text
+            })
+            return {"response": response_text}
+    
     # Otherwise, use AI for general conversation
     conversation_history.append({
         "role": "user",
@@ -129,7 +173,7 @@ def chat(data: Message):
         response = client.chat.completions.create(
             model="llama-3.1-8b-instant",
             messages=[
-                {"role": "system", "content": "You are a helpful personal AI assistant. Be concise and friendly."},
+                {"role": "system", "content": "You are a helpful personal AI assistant named Nova. Be concise and friendly."},
                 *conversation_history
             ]
         )
