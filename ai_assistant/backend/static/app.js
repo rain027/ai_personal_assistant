@@ -106,6 +106,10 @@ recognition.onend = () => {
 // Button Events
 document.getElementById("sendBtn").onclick = sendMessage;
 document.getElementById("voiceBtn").onclick = startListening;
+document.getElementById("stopBtn").onclick = () => {
+    speechSynthesis.cancel();
+    console.log("Speech stopped");
+};
 document.getElementById("userInput").onkeypress = (e) => {
     if (e.key === "Enter") sendMessage();
 };
