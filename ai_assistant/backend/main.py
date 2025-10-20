@@ -146,7 +146,7 @@ def chat(data: Message):
         return {"response": response_text}
     
     # Check if user asked a math question
-    if any(keyword in user_message for keyword in ["solve", "equation", "math", "calculate", "=" and ("x" in user_message or "y" in user_message)]):
+    if any(keyword in user_message for keyword in ["solve", "equation", "math", "calculate"]) or ("=" in user_message and ("x" in user_message or "y" in user_message)):
         # Try to extract and solve equation
         # Look for patterns like "x2+2x+1=0" or "solve x+5=10"
         math_result = solve_math(data.message)
