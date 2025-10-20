@@ -43,12 +43,17 @@ function addMessage(text, sender)
     const messagesDiv = document.getElementById("messages");
     const msgDiv = document.createElement("div");
 
-    let bgColor = "bg-blue-600";
-    if (sender === "assistant") bgColor = "bg-gray-700";
-    if (sender === "error") bgColor = "bg-red-600";
-
-    msgDiv.className = `text-right`;
-    msgDiv.innerHTML = `<span class="inline-block p-3 rounded ${bgColor}">${text}</span>`;
+    if (sender === "user") {
+        msgDiv.className = "message-user flex justify-end";
+        msgDiv.innerHTML = `<div class="bg-blue-600 text-white rounded-2xl rounded-tr-none px-4 py-3 max-w-xs shadow-lg">${text}</div>`;
+    } else if (sender === "assistant") {
+        msgDiv.className = "message-assistant flex justify-start";
+        msgDiv.innerHTML = `<div class="bg-slate-700 text-gray-100 rounded-2xl rounded-tl-none px-4 py-3 max-w-xs shadow-lg">${text}</div>`;
+    } else if (sender === "error") {
+        msgDiv.className = "message-assistant flex justify-start";
+        msgDiv.innerHTML = `<div class="bg-red-900 text-red-100 rounded-2xl rounded-tl-none px-4 py-3 max-w-xs shadow-lg">${text}</div>`;
+    }
+    
     messagesDiv.appendChild(msgDiv);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
